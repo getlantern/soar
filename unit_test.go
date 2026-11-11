@@ -555,3 +555,13 @@ func TestEvenLossNeverMovesAnswerSize(t *testing.T) {
 		t.Fatalf("size-blind loss demoted the proven size to %d", p.sizeOK)
 	}
 }
+
+// kindling keeps streaming requests off a DNS tunnel whose IsStreamable is false. Soar must say
+// so: a streaming response holds a stream for as long as it lasts, and a client sending many
+// would leave the session none for anything else.
+func TestClientIsNotStreamable(t *testing.T) {
+	var tunnel interface{ IsStreamable() bool } = &Client{}
+	if tunnel.IsStreamable() {
+		t.Fatal("Client.IsStreamable() = true, want false")
+	}
+}

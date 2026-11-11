@@ -12,8 +12,8 @@ import (
 // transport whose first dial to addr uses that connection; later dials ride the tunnel too. It
 // returns only once the server confirms it reached addr: kindling treats this as the connect
 // phase and falls back to another transport only when connecting fails. TLS runs end to end, so
-// the server only relays ciphertext. With Close, MaxLength and RequestTimeout, this satisfies
-// kindling's DNS-tunnel transport (dnstt.DNSTT).
+// the server only relays ciphertext. With Close, MaxLength, RequestTimeout and IsStreamable, this
+// satisfies kindling's DNS-tunnel transport (kindling.DNSTunnel).
 //
 // The confirmed connection holds one of the session's streams until a request takes it. Close
 // the returned transport (it implements io.Closer) when it won't be used, as a race does when
@@ -114,6 +114,11 @@ func (p *preDialed) close() {
 
 // MaxLength caps request bodies: uploads ride ~50-byte queries, so big ones belong elsewhere.
 func (c *Client) MaxLength() int { return 64 << 10 }
+
+// IsStreamable reports false: a streaming response (an event stream or long poll) holds one of the
+// session's MaxStreams streams for as long as it lasts, and a client that sends many would leave
+// none for anything else. kindling keeps such requests off the tunnel.
+func (c *Client) IsStreamable() bool { return false }
 
 // RequestTimeout bounds a request through the tunnel, including session setup.
 func (c *Client) RequestTimeout() time.Duration { return 90 * time.Second }

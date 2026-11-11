@@ -113,7 +113,9 @@ conn, err := c.DialContext(ctx, "tcp", "example.com:443")
 ```
 
 `Client` also implements kindling's DNS-tunnel interface (`NewRoundTripper`, `MaxLength`,
-`RequestTimeout`, `Close`), so it plugs into `kindling.WithDNSTunnel`.
+`RequestTimeout`, `IsStreamable`, `Close`), so it plugs into `kindling.WithDNSTunnel`.
+`IsStreamable` is false: kindling keeps streaming requests, which would each hold a stream for
+as long as they last, off the tunnel.
 
 ## Benchmarks
 
